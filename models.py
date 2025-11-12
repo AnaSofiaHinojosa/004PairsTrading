@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class Operation:
     """
@@ -12,4 +13,3 @@ class Operation:
     entry: float             # Entry price
     exit: float              # Exit price (set when closing)
     time: str                # Timestamp or index of trade open
-    

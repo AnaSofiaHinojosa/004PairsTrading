@@ -29,6 +29,7 @@ def split_data(data: pd.DataFrame):
 
     return train, test, test_plus
 
+
 def test_data(tickers):
     """
     Download and prepare test data for the given tickers.
@@ -41,7 +42,8 @@ def test_data(tickers):
     """
 
     # Download 15-year data
-    data = yf.download(tickers, period="15y", auto_adjust=True, progress=False, group_by='ticker')
+    data = yf.download(tickers, period="15y", auto_adjust=True,
+                       progress=False, group_by='ticker')
 
     # Prepare Close price DataFrames
     if isinstance(data.columns, pd.MultiIndex):
@@ -57,6 +59,7 @@ def test_data(tickers):
 
     return test1, test2
 
+
 def normalize_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Normalize the DataFrame using mean and standard deviation scaling.
@@ -67,6 +70,6 @@ def normalize_data(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Normalized DataFrame.
     """
-    
+
     norm_df = (df - df.mean()) / df.std()
     return norm_df

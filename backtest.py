@@ -4,14 +4,13 @@ from kalman import KalmanFilter
 import numpy as np
 
 
-def get_portfolio_value(cash: float, 
-                        long_ops: list[Operation], 
-                        short_ops: list[Operation], 
-                        x: float, 
-                        y: float, 
-                        x_price: float, 
+def get_portfolio_value(cash: float,
+                        long_ops: list[Operation],
+                        short_ops: list[Operation],
+                        x: float,
+                        y: float,
+                        x_price: float,
                         y_price: float) -> float:
-
     """
     Calculate total portfolio value given cash and open positions.
 
@@ -38,7 +37,7 @@ def get_portfolio_value(cash: float,
             val += pnl
         if pos.ticker == y:
             pnl = y_price * pos.n_shares
-            val += pnl    
+            val += pnl
 
     # Add short positions value
     for pos in short_ops:
@@ -50,6 +49,7 @@ def get_portfolio_value(cash: float,
             val += pnl
 
     return val
+
 
 def backtest(data, original_eigenvector, theta) -> tuple:
     """
@@ -127,7 +127,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
         pos = data.index.get_loc(i)
         if pos < 252:
             portfolio_value.append(get_portfolio_value(
-            cash, active_long_positions, active_short_positions, x, y, row[x], row[y]))
+                cash, active_long_positions, active_short_positions, x, y, row[x], row[y]))
             continue
 
         p1 = row[y]
@@ -152,10 +152,10 @@ def backtest(data, original_eigenvector, theta) -> tuple:
         x1_kalman = p1
         x2_kalman = p2
 
-        
         if pos >= 252:
             try:
-                _, _, _, _, eigenvector_kalman = johansen_test(data.iloc[pos - 252:pos, :])
+                _, _, _, _, eigenvector_kalman = johansen_test(
+                    data.iloc[pos - 252:pos, :])
             except:
                 pass
 
@@ -182,15 +182,15 @@ def backtest(data, original_eigenvector, theta) -> tuple:
         if len(vecms_sample) >= 252:
             mean_vecm = np.nanmean(vecms_sample)
             std_vecm = np.nanstd(vecms_sample)
-            vecm_norm = (vecm_hat - mean_vecm) / std_vecm if std_vecm != 0 else np.nan
+            vecm_norm = (vecm_hat - mean_vecm) / \
+                std_vecm if std_vecm != 0 else np.nan
         else:
             vecm_norm = np.nan
-        
 
         vecms_norm.append(vecm_norm)
-          
+
         # Check signals
-        if abs(vecm_norm)<0.05:
+        if abs(vecm_norm) < 0.05:
             # Close all positions
 
             # Close all long positions
@@ -202,8 +202,8 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                     pnl = end - start
                     commission = row[y] * position.n_shares * COM
                     cash += row[y] * position.n_shares * (1 - COM)
-                    trade_pnls.append(pnl) 
-                    total_commissions += commission 
+                    trade_pnls.append(pnl)
+                    total_commissions += commission
                     # Update details
                     position.exit = row[y]
 
@@ -212,14 +212,14 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                     start = position.entry * position.n_shares * (1 + COM)
                     end = row[x] * position.n_shares * (1 - COM)
                     pnl = end - start
-                    commission = row[x] * position.n_shares * COM 
+                    commission = row[x] * position.n_shares * COM
                     cash += row[x] * position.n_shares * (1 - COM)
-                    trade_pnls.append(pnl) 
-                    total_commissions += commission 
+                    trade_pnls.append(pnl)
+                    total_commissions += commission
                     # Update details
                     position.exit = row[x]
 
-                # Remove position from active list    
+                # Remove position from active list
                 active_long_positions.remove(position)
 
             # Close all short positions
@@ -231,7 +231,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                     cover_cost = row[y] * position.n_shares
                     borrow_cost = cover_cost * BORROW_RATE_DAILY
                     cash -= borrow_cost
-                    total_borrow_costs += borrow_cost 
+                    total_borrow_costs += borrow_cost
 
                 # x
                 if position.ticker == x:
@@ -247,8 +247,8 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                     pnl = (position.entry - row[y]) * position.n_shares
                     short_com = row[y] * position.n_shares * COM
                     cash += pnl - short_com
-                    trade_pnls.append(pnl - short_com) 
-                    total_commissions += short_com 
+                    trade_pnls.append(pnl - short_com)
+                    total_commissions += short_com
                     # Update details
                     position.x = row[y]
 
@@ -257,12 +257,12 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                     pnl = (position.entry - row[x]) * position.n_shares
                     short_com = row[x] * position.n_shares * COM
                     cash += pnl - short_com
-                    trade_pnls.append(pnl - short_com) 
-                    total_commissions += short_com 
+                    trade_pnls.append(pnl - short_com)
+                    total_commissions += short_com
                     # Update details
-                    position.exit = row[x]  
+                    position.exit = row[x]
 
-                # Remove position from active list  
+                # Remove position from active list
                 active_short_positions.remove(position)
 
         # Check signal
@@ -277,16 +277,16 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                 cash -= position_value
                 buy += 1
                 operation = Operation(
-                        ticker=y,
-                        type="LONG",
-                        n_shares=n_shares_long,
-                        entry=p1,
-                        exit=0.0,
-                        time=i
-                    )
+                    ticker=y,
+                    type="LONG",
+                    n_shares=n_shares_long,
+                    entry=p1,
+                    exit=0.0,
+                    time=i
+                )
                 active_long_positions.append(operation)
                 all_positions.append(operation)
-                
+
             # Short x
             n_shares_short = int(n_shares_long * hr)
             cost = p2 * n_shares_short * COM
@@ -295,17 +295,17 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                 cash -= cost
                 sell += 1
                 operation = Operation(
-                        ticker=x,
-                        type="SHORT",
-                        n_shares=n_shares_short,
-                        entry=p2,
-                        exit=0.0,
-                        time=i
-                    )
+                    ticker=x,
+                    type="SHORT",
+                    n_shares=n_shares_short,
+                    entry=p2,
+                    exit=0.0,
+                    time=i
+                )
                 active_short_positions.append(operation)
                 all_positions.append(operation)
             else:
-                hold += 1    
+                hold += 1
 
         if vecm_norm < -theta and not active_long_positions and not active_short_positions:
             # Short y
@@ -317,33 +317,33 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                 cash -= position_value
                 sell += 1
                 operation = Operation(
-                        ticker=y,
-                        type="SHORT",
-                        n_shares=n_shares_short,
-                        entry=p1,
-                        exit=0.0,
-                        time=i
-                    )
+                    ticker=y,
+                    type="SHORT",
+                    n_shares=n_shares_short,
+                    entry=p1,
+                    exit=0.0,
+                    time=i
+                )
                 active_short_positions.append(operation)
-                all_positions.append(operation)     
+                all_positions.append(operation)
 
             # Long x
-            n_shares_long = int(n_shares_short * hr) 
+            n_shares_long = int(n_shares_short * hr)
             position_value = p2 * n_shares_long * (1 + COM)
             if cash > position_value:
                 # Do long
                 cash -= position_value
                 buy += 1
                 operation = Operation(
-                        ticker=x,
-                        type="LONG",
-                        n_shares=n_shares_long,
-                        entry=p2,
-                        exit=0.0,
-                        time=i
-                    )
+                    ticker=x,
+                    type="LONG",
+                    n_shares=n_shares_long,
+                    entry=p2,
+                    exit=0.0,
+                    time=i
+                )
                 active_long_positions.append(operation)
-                all_positions.append(operation)      
+                all_positions.append(operation)
 
             else:
                 hold += 1
@@ -361,11 +361,11 @@ def backtest(data, original_eigenvector, theta) -> tuple:
             start = position.entry * position.n_shares * (1 + COM)
             end = row[y] * position.n_shares * (1 - COM)
             pnl = end - start
-            commission = row[y] * position.n_shares * COM 
+            commission = row[y] * position.n_shares * COM
             cash += row[y] * position.n_shares * (1 - COM)
-            trade_pnls.append(pnl) 
-            total_commissions += commission 
-        
+            trade_pnls.append(pnl)
+            total_commissions += commission
+
             # Update details
             position.exit = row[y]
 
@@ -374,10 +374,10 @@ def backtest(data, original_eigenvector, theta) -> tuple:
             start = position.entry * position.n_shares * (1 + COM)
             end = row[x] * position.n_shares * (1 - COM)
             pnl = end - start
-            commission = row[x] * position.n_shares * COM 
+            commission = row[x] * position.n_shares * COM
             cash += row[x] * position.n_shares * (1 - COM)
-            trade_pnls.append(pnl)  
-            total_commissions += commission 
+            trade_pnls.append(pnl)
+            total_commissions += commission
             # Update details
             position.exit = row[x]
 
@@ -390,8 +390,8 @@ def backtest(data, original_eigenvector, theta) -> tuple:
             pnl = (position.entry - row[y]) * position.n_shares
             short_com = row[y] * position.n_shares * COM
             cash += pnl - short_com
-            trade_pnls.append(pnl - short_com) 
-            total_commissions += short_com 
+            trade_pnls.append(pnl - short_com)
+            total_commissions += short_com
             # Update details
             position.exit = row[y]
 
@@ -403,7 +403,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
             trade_pnls.append(pnl - short_com)
             total_commissions += short_com
             # Update details
-            position.exit = row[x]  
+            position.exit = row[x]
 
     active_long_positions = []
     active_short_positions = []

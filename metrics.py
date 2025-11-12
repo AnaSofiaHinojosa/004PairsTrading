@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+
 class final_metrics():
 
     def __init__(self, portfolio_values: pd.Series):
@@ -33,7 +34,6 @@ class final_metrics():
 
         return annual_rets / annual_std if annual_std > 0 else 0
 
-
     def sortino_ratio(self) -> float:
         """
         Calculate the Sortino ratio of a portfolio.
@@ -54,7 +54,6 @@ class final_metrics():
 
         return annual_rets / annual_downside if annual_downside > 0 else 0
 
-
     def max_drawdown(self) -> float:
         """
         Calculate the maximum drawdown of a portfolio.
@@ -68,7 +67,6 @@ class final_metrics():
         max_dd = drawdowns.min()
 
         return abs(max_dd)
-
 
     def calmar_ratio(self) -> float:
         """
@@ -91,7 +89,6 @@ class final_metrics():
 
         return annual_rets / mdd if mdd > 0 else 0
 
-
     def evaluate_metrics(self) -> pd.DataFrame:
         """
         Evaluate key performance metrics of a portfolio.
@@ -108,7 +105,7 @@ class final_metrics():
         }
 
         return pd.DataFrame([metrics], index=['Value'])
-    
+
     def summary(self):
         """
         Print a summary of the performance metrics.

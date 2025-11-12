@@ -1,7 +1,8 @@
 import numpy as np
 
+
 class KalmanFilter():
-    def __init__(self, Q_mult: float = 0.01, R_mult: float = 0.01, P_mult = 0.01):
+    def __init__(self, Q_mult: float = 0.01, R_mult: float = 0.01, P_mult=0.01):
         """
         Initialize the Kalman Filter.
 
@@ -72,7 +73,7 @@ class KalmanFilter():
             x2 (float): Second independent variable.
             vecm (float): Dependent variable (VECM value).
         """
-        
+
         y_obs = vecm
         C = np.array([[x1, x2]])
 
@@ -93,7 +94,6 @@ class KalmanFilter():
 
         # Update covariance
         self.P = (np.eye(2) - K @ C) @ self.P
-
 
     @property
     def params(self):

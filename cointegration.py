@@ -7,6 +7,7 @@ import statsmodels.api as sm
 from plots import plot_cointegrated_pair
 from utils import split_data
 
+
 def johansen_test(data, det_order=0, k_ar_diff=1):
     """
     Perform Johansen cointegration test on the provided data.
@@ -21,11 +22,12 @@ def johansen_test(data, det_order=0, k_ar_diff=1):
     """
 
     result = coint_johansen(data, det_order, k_ar_diff)
-    trace_stat = result.lr1[0]               
-    crit_90, crit_95, crit_99 = result.cvt[0]  
-    first_eigenvector = result.evec[:, 0]    
+    trace_stat = result.lr1[0]
+    crit_90, crit_95, crit_99 = result.cvt[0]
+    first_eigenvector = result.evec[:, 0]
 
     return trace_stat, crit_90, crit_95, crit_99, first_eigenvector
+
 
 def calculate_rolling_correlation(df, window=252):
     """
@@ -43,6 +45,7 @@ def calculate_rolling_correlation(df, window=252):
 
     # Return the mean of the rolling correlations
     return rolling_corr.mean()
+
 
 def run_ols_adf(df):
     """
@@ -65,6 +68,7 @@ def run_ols_adf(df):
 
     return residuals, p_value
 
+
 def cointegration_analysis():
     """
     Perform cointegration analysis on predefined stock pairs within sectors.
@@ -75,45 +79,21 @@ def cointegration_analysis():
 
     # Define tickers per sector
     sector_tickers = {
-    "Energy": [
-        "XOM", "EOG", "OXY"
-    ],
+        "Energy": ["XOM", "EOG", "OXY"],
+        "Consumer_Discretionary": ["LOW", "NKE"],
+        "Real_Estate": ["AMT", "PLD"],
+        "Financials": ["SCHW", "BK", "MS", "BLK"],
+        "Industrials": ["RTX", "EMR", "HON", "LMT"],
+        "Technology": ["CSCO", "ADBE"],
+        "Consumer_Staples": ["MDLZ", "KMB", "KO", "PEP"],
+        "Utilities": ["NEE", "PEG"],
 
-    "Consumer_Discretionary": [
-        "LOW", "NKE"
-    ],
-
-    "Real_Estate": [
-        "AMT", "PLD"
-    ],
-
-    "Financials": [
-        "SCHW", "BK", "MS", "BLK"
-    ],
-
-    "Industrials": [
-        "RTX", "EMR", "HON", "LMT"
-    ],
-
-    "Technology": [
-        "CSCO", "ADBE"
-    ],
-
-    "Consumer_Staples": [
-        "MDLZ", "KMB", "KO", "PEP"
-    ],
-
-    "Utilities": [
-        "NEE", "PEG"
-    ],
-
-    "Communication_Services": [
-        "GOOGL", "META"
-    ]
-}
+        "Communication_Services": ["GOOGL", "META"]
+    }
 
     # Generate all possible pairs within each sector
-    sector_pairs = {sector: list(combinations(tickers, 2)) for sector, tickers in sector_tickers.items()}
+    sector_pairs = {sector: list(combinations(tickers, 2))
+                    for sector, tickers in sector_tickers.items()}
     results = []
 
     for sector, pairs in sector_pairs.items():
@@ -121,7 +101,8 @@ def cointegration_analysis():
         for t1, t2 in pairs:
             try:
                 # Download 15-year data
-                data = yf.download([t1, t2], period="15y", group_by='ticker', auto_adjust=True, progress=False)
+                data = yf.download(
+                    [t1, t2], period="15y", group_by='ticker', auto_adjust=True, progress=False)
                 df_close = pd.DataFrame()
                 for t in [t1, t2]:
                     if isinstance(data.columns, pd.MultiIndex):
@@ -144,7 +125,8 @@ def cointegration_analysis():
                 _, adf_p = run_ols_adf(train_df)
 
                 # Johansen test
-                trace_stat, _, c95, _, first_eigenvector = johansen_test(train_df)
+                trace_stat, _, c95, _, first_eigenvector = johansen_test(
+                    train_df)
                 cointegrated_johansen = trace_stat > c95
 
                 # Append only pairs passing correlation & ADF
@@ -165,10 +147,13 @@ def cointegration_analysis():
                 print(f"{t1}-{t2} failed: {e}")
 
     df_results = pd.DataFrame(results)
-    df_filtered = df_results[(df_results['RollingCorr'] > 0.6) & (df_results['ADF_pvalue'] < 0.05) & (df_results['Cointegrated_Johansen'] == True)]
-    df_sorted = df_filtered.sort_values(by="Strength", ascending=False).reset_index(drop=True)
+    df_filtered = df_results[(df_results['RollingCorr'] > 0.6) & (
+        df_results['ADF_pvalue'] < 0.05) & (df_results['Cointegrated_Johansen'] == True)]
+    df_sorted = df_filtered.sort_values(
+        by="Strength", ascending=False).reset_index(drop=True)
 
     return df_sorted, df_results
+
 
 def get_test_results(df_results: pd.DataFrame) -> None:
     """
@@ -181,6 +166,7 @@ def get_test_results(df_results: pd.DataFrame) -> None:
     # Export DataFrame to xlsx
     df_results.to_excel("cointegration_results.xlsx", index=False)
 
+
 def choose_pair(df_results: pd.DataFrame) -> tuple:
     """
     Choose the best cointegrated pair based on test results.
@@ -192,15 +178,17 @@ def choose_pair(df_results: pd.DataFrame) -> tuple:
         tuple: Full DataFrame of the pair, training set, testing set, extended testing set,
                list of tickers, and first eigenvector.
     """
-    
+
     # Select strongest pair passing Johansen test
-    best_idx = df_results[df_results['Cointegrated_Johansen']]["Strength"].idxmax()
+    best_idx = df_results[df_results['Cointegrated_Johansen']
+                          ]["Strength"].idxmax()
     best_pair = df_results.loc[best_idx]
     tickers = [best_pair['Ticker1'], best_pair['Ticker2']]
     first_eigenvector = best_pair["Eigenvector"]
 
     # Download full 15-year data
-    data = yf.download(tickers, period="15y", auto_adjust=True, progress=False, group_by='ticker')
+    data = yf.download(tickers, period="15y", auto_adjust=True,
+                       progress=False, group_by='ticker')
 
     # Prepare close price DataFrame
     df_pair = pd.DataFrame()
@@ -216,6 +204,7 @@ def choose_pair(df_results: pd.DataFrame) -> tuple:
     train_df, test_df, test_plus_df = split_data(df_pair)
 
     # Plot training portion
-    plot_cointegrated_pair(train_df[[tickers[0]]], train_df[[tickers[1]]], tickers[0], tickers[1])
+    plot_cointegrated_pair(train_df[[tickers[0]]], train_df[[
+                           tickers[1]]], tickers[0], tickers[1])
 
     return df_pair, train_df, test_df, test_plus_df, tickers, first_eigenvector

@@ -21,8 +21,9 @@ def plot_cointegrated_pair(df_1, df_2, ticker1, ticker2):
     norm_df2 = (df_2 - df_2.mean()) / df_2.std()
 
     # Plot
-    plt.figure(figsize=(12,6))
-    plt.plot(norm_df1.index, norm_df1[ticker1], label=ticker1, color='palevioletred')
+    plt.figure(figsize=(12, 6))
+    plt.plot(norm_df1.index, norm_df1[ticker1],
+             label=ticker1, color='palevioletred')
     plt.plot(norm_df2.index, norm_df2[ticker2], label=ticker2, color='maroon')
     plt.title(f"Cointegrated Pair: {ticker1} & {ticker2}")
     plt.xlabel("Date")
@@ -30,6 +31,7 @@ def plot_cointegrated_pair(df_1, df_2, ticker1, ticker2):
     plt.grid(linestyle='--', alpha=0.7)
     plt.legend()
     plt.show()
+
 
 def plot_port_value(port_hist: list[float], dates: pd.Series) -> None:
     """
@@ -49,6 +51,7 @@ def plot_port_value(port_hist: list[float], dates: pd.Series) -> None:
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
+
 
 def plot_spread(data) -> None:
     """
@@ -80,6 +83,7 @@ def plot_spread(data) -> None:
     plt.legend()
     plt.show()
 
+
 def plot_vecm_normalized(vecm_norm: list[float], theta: float, dates: pd.Series) -> None:
     """
     Plot the normalized VECM values over time.
@@ -101,7 +105,8 @@ def plot_vecm_normalized(vecm_norm: list[float], theta: float, dates: pd.Series)
     plt.legend()
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.show()    
+    plt.show()
+
 
 def plot_estimated(real1: list[float], estimated1: list[float], real2: list[float], estimated2: list[float], dates: pd.Series, type1: str, type2: str) -> None:
     """
@@ -119,7 +124,8 @@ def plot_estimated(real1: list[float], estimated1: list[float], real2: list[floa
 
     fig, axs = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
     axs[0].plot(dates, real1, label='Real ' + type1, color='palevioletred')
-    axs[0].plot(dates, estimated1, label='Estimated ' + type1, color='maroon', alpha=0.7)
+    axs[0].plot(dates, estimated1, label='Estimated ' +
+                type1, color='maroon', alpha=0.7)
     axs[0].set_title(f"Real vs Estimated {type1} Over Time")
     axs[0].set_xlabel("Date")
     axs[0].set_ylabel(f"{type1} Values")
@@ -127,12 +133,14 @@ def plot_estimated(real1: list[float], estimated1: list[float], real2: list[floa
     axs[0].legend()
 
     axs[1].plot(dates, real2, label='Real ' + type2, color='palevioletred')
-    axs[1].plot(dates, estimated2, label='Estimated ' + type2, color='maroon', alpha=0.7)
+    axs[1].plot(dates, estimated2, label='Estimated ' +
+                type2, color='maroon', alpha=0.7)
     axs[1].set_title(f"Real vs Estimated {type2} Over Time")
     axs[1].set_xlabel("Date")
     axs[1].set_ylabel(f"{type2} Values")
     axs[1].grid(linestyle=':', alpha=0.7)
     axs[1].legend()
+
 
 def plot_estimated_one(real, estimated, dates, type) -> None:
     """
@@ -147,7 +155,8 @@ def plot_estimated_one(real, estimated, dates, type) -> None:
 
     plt.figure(figsize=(10, 5))
     plt.plot(dates, real, label='Real ' + type, color='palevioletred')
-    plt.plot(dates, estimated, label='Estimated ' + type, color='maroon', alpha=0.7)
+    plt.plot(dates, estimated, label='Estimated ' +
+             type, color='maroon', alpha=0.7)
     plt.title("Real " + type + " and Estimated " + type + " Over Time")
     plt.xlabel("Date")
     plt.ylabel("Values")
@@ -156,6 +165,7 @@ def plot_estimated_one(real, estimated, dates, type) -> None:
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
+
 
 def plot_kalman_weights(kalman_w1, dates) -> None:
     """
@@ -177,6 +187,7 @@ def plot_kalman_weights(kalman_w1, dates) -> None:
     plt.tight_layout()
     plt.show()
 
+
 def hist_returns_distribution(positions: list[Operation]) -> None:
     """
     Plot the distribution of returns per trade.
@@ -184,7 +195,7 @@ def hist_returns_distribution(positions: list[Operation]) -> None:
     Parameters:
         positions (list[Operation]): List of trade positions.
     """
-    
+
     returns = []
 
     # Calculate returns for each position
