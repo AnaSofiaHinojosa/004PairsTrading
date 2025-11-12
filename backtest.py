@@ -188,15 +188,14 @@ def backtest(data, original_eigenvector, theta) -> tuple:
         
 
         vecms_norm.append(vecm_norm)
-
           
-
         # Check signals
         if abs(vecm_norm)<0.05:
             # Close all positions
 
             # Close all long positions
             for position in active_long_positions.copy():
+                # y
                 if position.ticker == y:
                     start = position.entry * position.n_shares * (1 + COM)
                     end = row[y] * position.n_shares * (1 - COM)
@@ -208,6 +207,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                     # Update details
                     position.exit = row[y]
 
+                # x
                 if position.ticker == x:
                     start = position.entry * position.n_shares * (1 + COM)
                     end = row[x] * position.n_shares * (1 - COM)
@@ -226,12 +226,14 @@ def backtest(data, original_eigenvector, theta) -> tuple:
 
             # Borrow cost
             for position in active_short_positions.copy():
+                # y
                 if position.ticker == y:
                     cover_cost = row[y] * position.n_shares
                     borrow_cost = cover_cost * BORROW_RATE_DAILY
                     cash -= borrow_cost
                     total_borrow_costs += borrow_cost 
 
+                # x
                 if position.ticker == x:
                     cover_cost = row[x] * position.n_shares
                     borrow_cost = cover_cost * BORROW_RATE_DAILY
@@ -240,6 +242,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
 
             # Close short positions
             for position in active_short_positions.copy():
+                # y
                 if position.ticker == y:
                     pnl = (position.entry - row[y]) * position.n_shares
                     short_com = row[y] * position.n_shares * COM
@@ -249,6 +252,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
                     # Update details
                     position.x = row[y]
 
+                # x
                 if position.ticker == x:
                     pnl = (position.entry - row[x]) * position.n_shares
                     short_com = row[x] * position.n_shares * COM
@@ -352,6 +356,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
 
     # Close all long positions
     for position in active_long_positions.copy():
+        # y
         if position.ticker == y:
             start = position.entry * position.n_shares * (1 + COM)
             end = row[y] * position.n_shares * (1 - COM)
@@ -364,6 +369,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
             # Update details
             position.exit = row[y]
 
+        # x
         if position.ticker == x:
             start = position.entry * position.n_shares * (1 + COM)
             end = row[x] * position.n_shares * (1 - COM)
@@ -379,6 +385,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
 
     # Close short positions
     for position in active_short_positions.copy():
+        # y
         if position.ticker == y:
             pnl = (position.entry - row[y]) * position.n_shares
             short_com = row[y] * position.n_shares * COM
@@ -388,6 +395,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
             # Update details
             position.exit = row[y]
 
+        # x
         if position.ticker == x:
             pnl = (position.entry - row[x]) * position.n_shares
             short_com = row[x] * position.n_shares * COM

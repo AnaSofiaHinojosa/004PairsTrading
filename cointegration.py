@@ -15,11 +15,13 @@ def johansen_test(data, det_order=0, k_ar_diff=1):
     trace_stat = result.lr1[0]               
     crit_90, crit_95, crit_99 = result.cvt[0]  
     first_eigenvector = result.evec[:, 0]    
+
     return trace_stat, crit_90, crit_95, crit_99, first_eigenvector
 
 def calculate_rolling_correlation(df, window=252):
     """Calculate rolling correlation of two series and return average correlation."""
     rolling_corr = df.iloc[:, 0].rolling(window).corr(df.iloc[:, 1])
+
     # Return the mean of the rolling correlations
     return rolling_corr.mean()
 
@@ -32,6 +34,7 @@ def run_ols_adf(df):
     residuals = model.resid
     adf_result = adfuller(residuals)
     p_value = adf_result[1]
+
     return residuals, p_value
 
 def cointegration_analysis():
@@ -74,6 +77,7 @@ def cointegration_analysis():
     ]
 }
 
+    # Generate all possible pairs within each sector
     sector_pairs = {sector: list(combinations(tickers, 2)) for sector, tickers in sector_tickers.items()}
     results = []
 
@@ -128,6 +132,7 @@ def cointegration_analysis():
     df_results = pd.DataFrame(results)
     df_filtered = df_results[(df_results['RollingCorr'] > 0.6) & (df_results['ADF_pvalue'] < 0.05) & (df_results['Cointegrated_Johansen'] == True)]
     df_sorted = df_filtered.sort_values(by="Strength", ascending=False).reset_index(drop=True)
+
     return df_sorted, df_results
 
 def get_test_results(df_results: pd.DataFrame) -> None:

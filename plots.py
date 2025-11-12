@@ -6,8 +6,11 @@ import seaborn as sns
 
 
 def plot_cointegrated_pair(df_1, df_2, ticker1, ticker2):
+    # Normalize data
     norm_df1 = (df_1 - df_1.mean()) / df_1.std()
     norm_df2 = (df_2 - df_2.mean()) / df_2.std()
+
+    # Plot
     plt.figure(figsize=(12,6))
     plt.plot(norm_df1.index, norm_df1[ticker1], label=ticker1, color='palevioletred')
     plt.plot(norm_df2.index, norm_df2[ticker2], label=ticker2, color='maroon')
@@ -46,13 +49,16 @@ def plot_spread(data) -> None:
     """
     data = data.copy()
 
+    # Add constant for intercept
     X = st.add_constant(data.iloc[:, 0])
     y = data.iloc[:, 1]
 
+    # Fit OLS model
     model = st.OLS(y, X).fit()
     residuals = model.resid
     mean_resid = residuals.mean()
 
+    # Plot spread
     plt.figure(figsize=(10, 5))
     plt.plot(residuals, color='palevioletred', label='Spread')
     plt.axhline(mean_resid, color='black', linestyle='--', label='Mean Spread')
@@ -134,15 +140,16 @@ def plot_kalman_weights(kalman_w1, dates) -> None:
     plt.show()
 
 def hist_returns_distribution(positions: list[Operation]) -> None:
-
-
     returns = []
+
+    # Calculate returns for each position
     for pos in positions:
         ret = pos.exit / pos.entry - 1
         if pos.type == 'SHORT':
             ret = -ret
         returns.append(ret)
 
+    # Plot histogram
     plt.figure()
     sns.histplot(returns, color='palevioletred', alpha=0.3,
                  kde=True, bins=15, edgecolor=None)
