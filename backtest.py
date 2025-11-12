@@ -421,4 +421,4 @@ def backtest(data, original_eigenvector, theta) -> tuple:
         "Total Borrow Costs": total_borrow_costs
     }
 
-    return cash, portfolio_value, vecms_norm, p2_real, estimated_p2, real_e1, estimated_e1, real_e2, estimated_e2, p1_real, trade_stats, kalman1_w1, vecm_real, vecms_hat, all_positions
+    return cash, portfolio_value, vecms_norm, p2_real, estimated_p2, real_e1, estimated_e1, real_e2, estimated_e2, p1_real, trade_stats, kalman1_w1, vecm_real, vecms_hat, all_position
