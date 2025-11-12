@@ -15,16 +15,12 @@ def plot_cointegrated_pair(df_1, df_2, ticker1, ticker2):
         ticker1 (str): Ticker symbol for the first time series.
         ticker2 (str): Ticker symbol for the second time series.
     """
-
-    # Normalize data
-    norm_df1 = (df_1 - df_1.mean()) / df_1.std()
-    norm_df2 = (df_2 - df_2.mean()) / df_2.std()
-
+    
     # Plot
     plt.figure(figsize=(12, 6))
-    plt.plot(norm_df1.index, norm_df1[ticker1],
+    plt.plot(df_1.index, df_1[ticker1],
              label=ticker1, color='palevioletred')
-    plt.plot(norm_df2.index, norm_df2[ticker2], label=ticker2, color='maroon')
+    plt.plot(df_2.index, df_2[ticker2], label=ticker2, color='maroon')
     plt.title(f"Cointegrated Pair: {ticker1} & {ticker2}")
     plt.xlabel("Date")
     plt.ylabel("Price")
@@ -140,6 +136,9 @@ def plot_estimated(real1: list[float], estimated1: list[float], real2: list[floa
     axs[1].set_ylabel(f"{type2} Values")
     axs[1].grid(linestyle=':', alpha=0.7)
     axs[1].legend()
+
+    plt.tight_layout()
+    plt.show(block=True)
 
 
 def plot_estimated_one(real, estimated, dates, type) -> None:
