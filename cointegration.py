@@ -133,3 +133,31 @@ def cointegration_analysis():
 def get_test_results(df_results: pd.DataFrame) -> None:
     # Export DataFrame to xlsx
     df_results.to_excel("cointegration_results.xlsx", index=False)
+
+def choose_pair(df_results: pd.DataFrame) -> tuple:
+    # Select strongest pair passing Johansen test
+    best_idx = df_results[df_results['Cointegrated_Johansen']]["Strength"].idxmax()
+    best_pair = df_results.loc[best_idx]
+    tickers = [best_pair['Ticker1'], best_pair['Ticker2']]
+    first_eigenvector = best_pair["Eigenvector"]
+
+    # Download full 15-year data
+    data = yf.download(tickers, period="15y", auto_adjust=True, progress=False, group_by='ticker')
+
+    # Prepare close price DataFrame
+    df_pair = pd.DataFrame()
+    for t in tickers:
+        if isinstance(data.columns, pd.MultiIndex):
+            df_pair[t] = data[t]["Close"]
+        else:
+            df_pair[t] = data["Close"]
+
+    df_pair = df_pair.dropna()
+
+    # Split into train/test
+    train_df, test_df, test_plus_df = split_data(df_pair)
+
+    # Plot training portion
+    plot_cointegrated_pair(train_df[[tickers[0]]], train_df[[tickers[1]]], tickers[0], tickers[1])
+
+    return df_pair, train_df, test_df, test_plus_df, tickers, first_eigenvector
