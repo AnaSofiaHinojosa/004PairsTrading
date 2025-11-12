@@ -6,6 +6,16 @@ import seaborn as sns
 
 
 def plot_cointegrated_pair(df_1, df_2, ticker1, ticker2):
+    """
+    Plot the cointegrated pair of time series.
+
+    Parameters:
+        df_1 (pd.DataFrame): DataFrame containing the first time series.
+        df_2 (pd.DataFrame): DataFrame containing the second time series.
+        ticker1 (str): Ticker symbol for the first time series.
+        ticker2 (str): Ticker symbol for the second time series.
+    """
+
     # Normalize data
     norm_df1 = (df_1 - df_1.mean()) / df_1.std()
     norm_df2 = (df_2 - df_2.mean()) / df_2.std()
@@ -25,10 +35,11 @@ def plot_port_value(port_hist: list[float], dates: pd.Series) -> None:
     """
     Plot the portfolio value over time for the training set.
 
-    Args:
+    Parameters:
         port_hist (list[float]): Portfolio values at each time step.
         dates (pd.Series): Corresponding datetime values.
     """
+
     plt.figure(figsize=(10, 5))
     plt.plot(dates, port_hist, color='maroon', alpha=0.7)
     plt.title("Portfolio Value Over Time")
@@ -43,10 +54,10 @@ def plot_spread(data) -> None:
     """
     Plot the spread over time.
 
-    Args:
-        spread (pd.Series): Spread values at each time step.
-        dates (pd.Series): Corresponding datetime values.
+    Parameters:
+        data (pd.DataFrame): DataFrame containing the two time series.
     """
+
     data = data.copy()
 
     # Add constant for intercept
@@ -73,9 +84,12 @@ def plot_vecm_normalized(vecm_norm: list[float], theta: float, dates: pd.Series)
     """
     Plot the normalized VECM values over time.
 
-    Args:
+    Parameters:
         vecm_norm (list[float]): Normalized VECM values at each time step.
+        theta (float): Threshold value for trading signals.
+        dates (pd.Series): Corresponding datetime values.
     """
+
     plt.figure(figsize=(10, 5))
     plt.plot(dates, vecm_norm, color='palevioletred')
     plt.axhline(theta, color='black', linestyle='--', label='Theta Threshold')
@@ -93,10 +107,16 @@ def plot_estimated(real1: list[float], estimated1: list[float], real2: list[floa
     """
     Plot the real and estimated values over time.
 
-    Args:
-        p2_real (list[float]): Real values at each time step.
-        estimated_p2 (list[float]): Estimated values at each time step.
+    Parameters:
+        real1 (list[float]): Real values for the first type.
+        estimated1 (list[float]): Estimated values for the first type.
+        real2 (list[float]): Real values for the second type.
+        estimated2 (list[float]): Estimated values for the second type.
+        dates (pd.Series): Corresponding datetime values.
+        type1 (str): Label for the first type.
+        type2 (str): Label for the second type.
     """
+
     fig, axs = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
     axs[0].plot(dates, real1, label='Real ' + type1, color='palevioletred')
     axs[0].plot(dates, estimated1, label='Estimated ' + type1, color='maroon', alpha=0.7)
@@ -115,6 +135,16 @@ def plot_estimated(real1: list[float], estimated1: list[float], real2: list[floa
     axs[1].legend()
 
 def plot_estimated_one(real, estimated, dates, type) -> None:
+    """
+    Plot the real and estimated values for a single type over time.
+
+    Parameters:
+        real (list[float]): Real values.
+        estimated (list[float]): Estimated values.
+        dates (pd.Series): Corresponding datetime values.
+        type (str): Label for the type.
+    """
+
     plt.figure(figsize=(10, 5))
     plt.plot(dates, real, label='Real ' + type, color='palevioletred')
     plt.plot(dates, estimated, label='Estimated ' + type, color='maroon', alpha=0.7)
@@ -128,6 +158,14 @@ def plot_estimated_one(real, estimated, dates, type) -> None:
     plt.show()
 
 def plot_kalman_weights(kalman_w1, dates) -> None:
+    """
+    Plot the Kalman filter weights over time.
+
+    Parameters:
+        kalman_w1 (list[float]): Kalman filter weights at each time step.
+        dates (pd.Series): Corresponding datetime values.
+    """
+
     plt.figure(figsize=(10, 5))
     plt.plot(dates, kalman_w1, label='Kalman Weight 1', color='palevioletred')
     plt.title("Hedge Ratio (Kalman Weight 1) Over Time")
@@ -140,6 +178,13 @@ def plot_kalman_weights(kalman_w1, dates) -> None:
     plt.show()
 
 def hist_returns_distribution(positions: list[Operation]) -> None:
+    """
+    Plot the distribution of returns per trade.
+
+    Parameters:
+        positions (list[Operation]): List of trade positions.
+    """
+    
     returns = []
 
     # Calculate returns for each position

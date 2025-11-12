@@ -56,13 +56,13 @@ def backtest(data, original_eigenvector, theta) -> tuple:
     Backtest trading strategy based on generated signals.
 
     Parameters:
-        data (DataFrame): DataFrame containing historical price data and signals.
-        reference_features (DataFrame, optional): Reference features for drift detection.
-        compare_features (DataFrame, optional): Features to compare for drift detection.
+        data (pd.DataFrame): DataFrame containing price data for two assets.
+        original_eigenvector (np.ndarray): Initial eigenvector from cointegration test.
+        theta (float): Threshold for trading signals.
 
     Returns:
-        tuple: Final cash, portfolio value over time, win rate, buy count, sell count, hold count, total trades,
-               data drift results, p-values results.
+        tuple: Various results from the backtest including final cash, portfolio values,
+               normalized VECM values, real and estimated prices, trade statistics, etc.
     """
 
     # Signals

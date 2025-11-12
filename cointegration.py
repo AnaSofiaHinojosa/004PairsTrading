@@ -9,8 +9,17 @@ from utils import split_data
 
 def johansen_test(data, det_order=0, k_ar_diff=1):
     """
-    Runs Johansen cointegration test on a 2-column price dataframe.
+    Perform Johansen cointegration test on the provided data.
+
+    Parameters:
+        data (pd.DataFrame): DataFrame containing the time series data of two assets.
+        det_order (int): Deterministic trend order.
+        k_ar_diff (int): Number of lagged differences in the VAR model.
+
+    Returns:
+        tuple: Trace statistic, critical values, and first eigenvector.
     """
+
     result = coint_johansen(data, det_order, k_ar_diff)
     trace_stat = result.lr1[0]               
     crit_90, crit_95, crit_99 = result.cvt[0]  
@@ -19,14 +28,33 @@ def johansen_test(data, det_order=0, k_ar_diff=1):
     return trace_stat, crit_90, crit_95, crit_99, first_eigenvector
 
 def calculate_rolling_correlation(df, window=252):
-    """Calculate rolling correlation of two series and return average correlation."""
+    """
+    Calculate the rolling correlation between two time series.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame containing two columns of time series data.
+        window (int): Rolling window size.
+
+    Returns:
+        float: Mean of the rolling correlations.
+    """
+
     rolling_corr = df.iloc[:, 0].rolling(window).corr(df.iloc[:, 1])
 
     # Return the mean of the rolling correlations
     return rolling_corr.mean()
 
 def run_ols_adf(df):
-    """Run OLS regression and ADF test on residuals."""
+    """
+    Perform OLS regression and ADF test on the residuals.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame containing two columns of time series data.
+
+    Returns:
+        tuple: Residuals from OLS regression and p-value from ADF test.
+    """
+
     y = df.iloc[:, 0]
     x = df.iloc[:, 1]
     x = sm.add_constant(x)
@@ -38,6 +66,13 @@ def run_ols_adf(df):
     return residuals, p_value
 
 def cointegration_analysis():
+    """
+    Perform cointegration analysis on predefined stock pairs within sectors.
+
+    Returns:
+        tuple: DataFrame of filtered results and DataFrame of all results.
+    """
+
     # Define tickers per sector
     sector_tickers = {
     "Energy": [
@@ -136,10 +171,28 @@ def cointegration_analysis():
     return df_sorted, df_results
 
 def get_test_results(df_results: pd.DataFrame) -> None:
+    """
+    Export cointegration test results to an Excel file.
+
+    Parameters:
+        df_results (pd.DataFrame): DataFrame containing cointegration test results.
+    """
+
     # Export DataFrame to xlsx
     df_results.to_excel("cointegration_results.xlsx", index=False)
 
 def choose_pair(df_results: pd.DataFrame) -> tuple:
+    """
+    Choose the best cointegrated pair based on test results.
+
+    Parameters:
+        df_results (pd.DataFrame): DataFrame containing cointegration test results.
+
+    Returns:
+        tuple: Full DataFrame of the pair, training set, testing set, extended testing set,
+               list of tickers, and first eigenvector.
+    """
+    
     # Select strongest pair passing Johansen test
     best_idx = df_results[df_results['Cointegrated_Johansen']]["Strength"].idxmax()
     best_pair = df_results.loc[best_idx]

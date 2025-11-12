@@ -13,7 +13,7 @@ def split_data(data: pd.DataFrame):
         data (pd.DataFrame): Cleaned market data.
 
     Returns:
-        tuple: (train, test) DataFrames.
+        tuple: Training set, testing set, and testing set with overlap.
     """
 
     # 60% train, 40% test
@@ -30,6 +30,16 @@ def split_data(data: pd.DataFrame):
     return train, test, test_plus
 
 def test_data(tickers):
+    """
+    Download and prepare test data for the given tickers.
+
+    Parameters:
+        tickers (list): List of ticker symbols.
+
+    Returns:
+        tuple: Testing sets for both tickers.
+    """
+
     # Download 15-year data
     data = yf.download(tickers, period="15y", auto_adjust=True, progress=False, group_by='ticker')
 
@@ -57,5 +67,6 @@ def normalize_data(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Normalized DataFrame.
     """
+    
     norm_df = (df - df.mean()) / df.std()
     return norm_df

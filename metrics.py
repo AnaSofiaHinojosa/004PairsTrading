@@ -4,14 +4,18 @@ import pandas as pd
 class final_metrics():
 
     def __init__(self, portfolio_values: pd.Series):
+        """
+        Initialize the final_metrics class.
+
+        Parameters:
+            portfolio_values (pd.Series): Series of portfolio values over time.
+        """
+
         self.portfolio_values = pd.Series(portfolio_values)
 
     def sharpe_ratio(self) -> float:
         """
         Calculate the Sharpe ratio of a portfolio.
-
-        Parameters:
-            portfolio_values (pd.Series): Series of portfolio values over time.
 
         Returns:
             float: Sharpe ratio of the portfolio.
@@ -34,9 +38,6 @@ class final_metrics():
         """
         Calculate the Sortino ratio of a portfolio.
 
-        Parameters:
-            portfolio_values (pd.Series): Series of portfolio values over time.
-
         Returns:
             float: Sortino ratio of the portfolio.
         """
@@ -58,9 +59,6 @@ class final_metrics():
         """
         Calculate the maximum drawdown of a portfolio.
 
-        Parameters:
-            portfolio_values (pd.Series): Series of portfolio values over time.
-
         Returns:
             float: Maximum drawdown of the portfolio.
         """
@@ -75,9 +73,6 @@ class final_metrics():
     def calmar_ratio(self) -> float:
         """
         Calculate the Calmar ratio of a portfolio.
-
-        Parameters:
-            portfolio_values (pd.Series): Series of portfolio values over time.
 
         Returns:
             float: Calmar ratio of the portfolio.
@@ -101,9 +96,6 @@ class final_metrics():
         """
         Evaluate key performance metrics of a portfolio.
 
-        Parameters:
-            portfolio_values (pd.Series): Series of portfolio values over time.
-
         Returns:
             pd.DataFrame: DataFrame containing Sharpe ratio, Sortino ratio, Max drawdown, and Calmar ratio.
         """
@@ -118,6 +110,9 @@ class final_metrics():
         return pd.DataFrame([metrics], index=['Value'])
     
     def summary(self):
+        """
+        Print a summary of the performance metrics.
+        """
 
         print("=== PERFORMANCE METRICS ===")
         perf_metrics = self.evaluate_metrics()
