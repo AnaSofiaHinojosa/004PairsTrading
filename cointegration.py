@@ -1,0 +1,135 @@
+import pandas as pd
+import yfinance as yf
+from itertools import combinations
+from statsmodels.tsa.vector_ar.vecm import coint_johansen
+from statsmodels.tsa.stattools import adfuller
+import statsmodels.api as sm
+from plots import plot_cointegrated_pair
+from utils import split_data
+
+def johansen_test(data, det_order=0, k_ar_diff=1):
+    """
+    Runs Johansen cointegration test on a 2-column price dataframe.
+    """
+    result = coint_johansen(data, det_order, k_ar_diff)
+    trace_stat = result.lr1[0]               
+    crit_90, crit_95, crit_99 = result.cvt[0]  
+    first_eigenvector = result.evec[:, 0]    
+    return trace_stat, crit_90, crit_95, crit_99, first_eigenvector
+
+def calculate_rolling_correlation(df, window=252):
+    """Calculate rolling correlation of two series and return average correlation."""
+    rolling_corr = df.iloc[:, 0].rolling(window).corr(df.iloc[:, 1])
+    # Return the mean of the rolling correlations
+    return rolling_corr.mean()
+
+def run_ols_adf(df):
+    """Run OLS regression and ADF test on residuals."""
+    y = df.iloc[:, 0]
+    x = df.iloc[:, 1]
+    x = sm.add_constant(x)
+    model = sm.OLS(y, x).fit()
+    residuals = model.resid
+    adf_result = adfuller(residuals)
+    p_value = adf_result[1]
+    return residuals, p_value
+
+def cointegration_analysis():
+    # Define tickers per sector
+    sector_tickers = {
+    "Energy": [
+        "XOM", "EOG", "OXY"
+    ],
+
+    "Consumer_Discretionary": [
+        "LOW", "NKE"
+    ],
+
+    "Real_Estate": [
+        "AMT", "PLD"
+    ],
+
+    "Financials": [
+        "SCHW", "BK", "MS", "BLK"
+    ],
+
+    "Industrials": [
+        "RTX", "EMR", "HON", "LMT"
+    ],
+
+    "Technology": [
+        "CSCO", "ADBE"
+    ],
+
+    "Consumer_Staples": [
+        "MDLZ", "KMB", "KO", "PEP"
+    ],
+
+    "Utilities": [
+        "NEE", "PEG"
+    ],
+
+    "Communication_Services": [
+        "GOOGL", "META"
+    ]
+}
+
+    sector_pairs = {sector: list(combinations(tickers, 2)) for sector, tickers in sector_tickers.items()}
+    results = []
+
+    for sector, pairs in sector_pairs.items():
+        print(f"Testing {sector} sector...")
+        for t1, t2 in pairs:
+            try:
+                # Download 15-year data
+                data = yf.download([t1, t2], period="15y", group_by='ticker', auto_adjust=True, progress=False)
+                df_close = pd.DataFrame()
+                for t in [t1, t2]:
+                    if isinstance(data.columns, pd.MultiIndex):
+                        df_close[t] = data[t]["Close"]
+                    else:
+                        df_close[t] = data["Close"]
+
+                if df_close.shape[0] < 250:
+                    continue
+
+                df_close = df_close.dropna()
+
+                # Split train/test
+                train_df, _, _ = split_data(df_close)
+
+                # Rolling correlation filter
+                avg_corr = calculate_rolling_correlation(train_df)
+
+                # OLS + ADF test
+                _, adf_p = run_ols_adf(train_df)
+
+                # Johansen test
+                trace_stat, _, c95, _, first_eigenvector = johansen_test(train_df)
+                cointegrated_johansen = trace_stat > c95
+
+                # Append only pairs passing correlation & ADF
+                results.append({
+                    "Sector": sector,
+                    "Ticker1": t1,
+                    "Ticker2": t2,
+                    "RollingCorr": avg_corr,
+                    "ADF_pvalue": adf_p,
+                    "TraceStat": trace_stat,
+                    "Crit_95": c95,
+                    "Cointegrated_Johansen": cointegrated_johansen,
+                    "Strength": trace_stat / c95,
+                    "Eigenvector": first_eigenvector
+                })
+
+            except Exception as e:
+                print(f"{t1}-{t2} failed: {e}")
+
+    df_results = pd.DataFrame(results)
+    df_filtered = df_results[(df_results['RollingCorr'] > 0.6) & (df_results['ADF_pvalue'] < 0.05) & (df_results['Cointegrated_Johansen'] == True)]
+    df_sorted = df_filtered.sort_values(by="Strength", ascending=False).reset_index(drop=True)
+    return df_sorted, df_results
+
+def get_test_results(df_results: pd.DataFrame) -> None:
+    # Export DataFrame to xlsx
+    df_results.to_excel("cointegration_results.xlsx", index=False)
