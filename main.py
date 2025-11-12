@@ -9,8 +9,8 @@ def main():
     # Perform cointegration analysis
     df_results, df_all_results = cointegration_analysis()
 
-    # Export results to Excel
-    get_test_results(df_all_results)
+    # Export results to Excel (for further analysis if needed)
+    # get_test_results(df_all_results)
 
     print("Cointegration Analysis Results:")
     print(df_results)
@@ -31,7 +31,7 @@ def main():
 
     # Plot portfolio value over time
     dates = test_plus_df.index
-    plot_port_value(port_value, dates)
+    plot_port_value(port_value[252:], dates[252:])
 
     # Plot normalized VECM over time
     plot_vecm_normalized(vecms_norm, theta, dates[252:])

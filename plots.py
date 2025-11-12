@@ -92,9 +92,9 @@ def plot_vecm_normalized(vecm_norm: list[float], theta: float, dates: pd.Series)
 
     plt.figure(figsize=(10, 5))
     plt.plot(dates, vecm_norm, color='palevioletred')
-    plt.axhline(theta, color='black', linestyle='--', label='Theta Threshold')
-    plt.axhline(-theta, color='black', linestyle='--')
-    plt.title("Normalized VECM Over Time")
+    plt.axhline(theta, color='steelblue', linestyle='--', label='Theta Threshold (+' + str(theta) + ')')
+    plt.axhline(-theta, color='midnightblue', linestyle='--', label='Theta Threshold (-' + str(theta) + ')')
+    plt.title("Normalized VECM Over Time with θ Threshold")
     plt.xlabel("Date")
     plt.ylabel("Normalized VECM")
     plt.grid(linestyle=':', alpha=0.7)
@@ -214,3 +214,4 @@ def hist_returns_distribution(positions: list[Operation]) -> None:
     plt.axvline(x=0, color='black', linestyle='--')
     plt.grid(linestyle=':', alpha=0.7)
     plt.show()
+    
