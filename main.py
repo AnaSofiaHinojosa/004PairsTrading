@@ -16,7 +16,7 @@ def main():
     print(df_results)
 
     # Choose the strongest cointegrated pair and get train/test
-    full_df, train_df, test_df, test_plus_df, _, eigenvector = choose_pair(
+    full_df, train_df, _, test_plus_df, _, eigenvector = choose_pair(
         df_results)
     print("Selected Pair:")
     print(full_df.columns.tolist())
@@ -25,7 +25,7 @@ def main():
     plot_spread(train_df)
 
     # Backtest the strategy
-    theta = 0.84
+    theta = 1.5
     cash, port_value, vecms_norm, p2_real, estimated_p2, real_e1, estimated_e1, real_e2, estimated_e2, _, trade_stats, kalman1_w1, vecm_real, vecm_hat, all_positions = backtest(
         test_plus_df, eigenvector, theta)
 

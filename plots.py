@@ -214,4 +214,22 @@ def hist_returns_distribution(positions: list[Operation]) -> None:
     plt.axvline(x=0, color='black', linestyle='--')
     plt.grid(linestyle=':', alpha=0.7)
     plt.show()
-    
+
+def plot_theta_sortino(theta_values: list[float], sortino_ratios: list[float]) -> None:
+    """
+    Plot the Sortino ratio against different theta values.
+
+    Parameters:
+        theta_values (list[float]): List of theta values.
+        sortino_ratios (list[float]): Corresponding Sortino ratios.
+    """
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(theta_values, sortino_ratios, marker='o', color='maroon', alpha=0.7)
+    plt.title("Sortino Ratio vs Theta Values")
+    plt.xlabel("Theta Values")
+    plt.ylabel("Sortino Ratio")
+    plt.grid(linestyle=':', alpha=0.7)
+    plt.xticks(theta_values)
+    plt.tight_layout()
+    plt.show()    

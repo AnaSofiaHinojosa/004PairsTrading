@@ -68,6 +68,25 @@ def run_ols_adf(df):
 
     return residuals, p_value
 
+def individual_adf_test(df):
+    """
+    Perform ADF test on each individual time series.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame containing two columns of time series data.
+
+    Returns:
+        tuple: p-values from ADF tests for both series.
+    """
+ 
+    adf_result_1 = adfuller(df.iloc[:, 0])
+    p_value_1 = adf_result_1[1]
+
+    adf_result_2 = adfuller(df.iloc[:, 1])
+    p_value_2 = adf_result_2[1]
+
+    return p_value_1, p_value_2
+
 
 def cointegration_analysis():
     """
@@ -79,18 +98,27 @@ def cointegration_analysis():
 
     # Define tickers per sector
     sector_tickers = {
-        "Energy": ["XOM", "EOG", "OXY"],
-        "Consumer_Discretionary": ["LOW", "NKE"],
-        "Real_Estate": ["AMT", "PLD"],
-        "Financials": ["SCHW", "BK", "MS", "BLK"],
-        "Industrials": ["RTX", "EMR", "HON", "LMT"],
-        "Technology": ["CSCO", "ADBE"],
-        "Consumer_Staples": ["MDLZ", "KMB", "KO", "PEP"],
-        "Utilities": ["NEE", "PEG"],
+    "Midstream_Energy": [
+        "TRGP", "OKE", "KMI", "ET", "WMB"
+    ],
 
-        "Communication_Services": ["GOOGL", "META"]
-    }
+    "Industrial_Automation": [
+        "ROK", "SIEGY", "ETN", "EMR"
+    ],
 
+    "Banks": [
+        "JPM", "C", "WFC", "USB", "MS", "GS"
+    ],
+
+    "Consumer_Staples": [
+        "PEP", "PG", "K", "SJM", "HSY", "GIS", "KO"
+    ],
+    
+    "Healthcare_Equipment": [
+        "MDT", "SYK", "BSX", "DHR", "ZBH"
+    ]
+}
+    
     # Generate all possible pairs within each sector
     sector_pairs = {sector: list(combinations(tickers, 2))
                     for sector, tickers in sector_tickers.items()}
@@ -124,6 +152,9 @@ def cointegration_analysis():
                 # OLS + ADF test
                 _, adf_p = run_ols_adf(train_df)
 
+                # Individual ADF tests
+                adf_p_1, adf_p_2 = individual_adf_test(train_df)
+
                 # Johansen test
                 trace_stat, _, c95, _, first_eigenvector = johansen_test(
                     train_df)
@@ -140,7 +171,9 @@ def cointegration_analysis():
                     "Crit_95": c95,
                     "Cointegrated_Johansen": cointegrated_johansen,
                     "Strength": trace_stat / c95,
-                    "Eigenvector": first_eigenvector
+                    "Eigenvector": first_eigenvector,
+                    "ADF_pvalue_1": adf_p_1,
+                    "ADF_pvalue_2": adf_p_2
                 })
 
             except Exception as e:

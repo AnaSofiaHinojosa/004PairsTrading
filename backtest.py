@@ -146,7 +146,7 @@ def backtest(data, original_eigenvector, theta) -> tuple:
         kalman1_w1.append(w1)
 
         # Estimated P2
-        p2_est = w1 * p1 + w0
+        p2_est = (p1 - w0) / w1
 
         # Filter 2 for eigenvector
         x1_kalman = p1
