@@ -93,7 +93,7 @@ The strategy requires **historical price data** for a pair of assets (e.g., stoc
 
 ### Data come from:
 
-✔ Yahoo Finance via `yfinance`
+* Yahoo Finance via `yfinance`
 
 ### Minimum fields needed:
 
