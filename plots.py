@@ -3,6 +3,7 @@ import pandas as pd
 import statsmodels.api as st
 from models import Operation
 import seaborn as sns
+import numpy as np
 
 
 def plot_cointegrated_pair(df_1, df_2, ticker1, ticker2):
@@ -102,6 +103,62 @@ def plot_vecm_normalized(vecm_norm: list[float], theta: float, dates: pd.Series)
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
+
+def plot_vecm_normalized_with_signals(vecm_norm: list[float], theta: float, dates: pd.Series) -> None:
+    """
+    Plot normalized VECM values and highlight:
+        - Region between ±0.05
+        - Region above +θ
+        - Region below -θ
+
+    Parameters:
+        vecm_norm (list[float]): Normalized VECM values at each time step.
+        theta (float): Threshold value for trading signals.
+        dates (pd.Series): Corresponding datetime values.    
+    """
+
+    vec = np.asarray(vecm_norm, dtype=float)
+    dates_arr = np.asarray(dates)
+
+    if np.isnan(vec).any():
+        vec = pd.Series(vec).interpolate().bfill().ffill().values
+
+    band = 0.05
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    ax.plot(dates_arr, vec, color='palevioletred', linewidth=1.2, zorder=5)
+
+    data_min = np.nanmin(vec)
+    data_max = np.nanmax(vec)
+
+    ymin = min(data_min, -theta) - 0.2
+    ymax = max(data_max,  theta) + 0.2
+
+    if not np.isfinite(ymin):
+        ymin = -theta - 1
+    if not np.isfinite(ymax):
+        ymax = theta + 1
+
+    ax.set_ylim(ymin, ymax)
+
+    ax.axhspan(theta, ymax, color='lightblue', alpha=0.25, zorder=1, label="Above +θ")
+    ax.axhspan(ymin, -theta, color='lightblue', alpha=0.25, zorder=1, label="Below -θ")
+    ax.axhspan(-band, band, color='orange', alpha=0.15, zorder=1, label="Neutral Band (±0.05)")
+
+    ax.axhline(theta,  color='navy', linestyle='--', linewidth=1.3, label=f"+θ = {theta}")
+    ax.axhline(-theta, color='navy', linestyle='--', linewidth=1.3, label=f"-θ = {-theta}")
+    ax.axhline(band,   color='gray', linestyle=':')
+    ax.axhline(-band,  color='gray', linestyle=':')
+
+    ax.set_title("Normalized VECM Over Time with Highlighted Threshold Regions", fontsize=15)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Normalized VECM")
+    ax.grid(linestyle=':', alpha=0.7)
+    ax.legend(loc='upper left')
+    fig.autofmt_xdate()
+    plt.show()
+
 
 
 def plot_estimated(real1: list[float], estimated1: list[float], real2: list[float], estimated2: list[float], dates: pd.Series, type1: str, type2: str) -> None:

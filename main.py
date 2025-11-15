@@ -36,6 +36,9 @@ def main():
     # Plot normalized VECM over time
     plot_vecm_normalized(vecms_norm, theta, dates[252:])
 
+    # Plot normalized VECM with trading signals
+    plot_vecm_normalized_with_signals(vecms_norm, theta, dates[252:])
+
     # Metrics evaluation
     metrics = final_metrics(port_value)
     metrics.summary()
